@@ -1,14 +1,13 @@
 import base64 from "base-64";
 import FormData from "form-data";
 import fetch from "node-fetch";
-import { generateSlackMessage, generateSlackErrorMessage } from "./Slack";
+import { generateSlackMessage, generateSlackErrorMessage } from "../Slack";
+import { RedditSearchResponse, RedditClient } from "shared/types";
 
 const USER_AGENT = "Slack Slash Reddit";
 
-class Client {
-  accessToken?: string;
-
-  build = async () => {
+class Client extends RedditClient {
+  public build = async () => {
     try {
       if (!process.env.REDDIT_SECRET || !process.env.REDDIT_APP_ID) {
         throw new Error(
@@ -44,14 +43,15 @@ class Client {
         `http://oauth.reddit.com/subreddits/search?q=${term}`,
         {
           headers: {
+            "Content-type": "application/json; charset=utf-8",
             Authorization: `Bearer ${this.accessToken}`,
             "User-Agent": USER_AGENT
           }
         }
       );
-      let {
-        data: { children }
-      } = await res.json();
+      let data: RedditSearchResponse = await res.json();
+      const { children } = data.data;
+      console.log("children: ", JSON.stringify(children[0], null, 2));
       const {
         title,
         display_name_prefixed,

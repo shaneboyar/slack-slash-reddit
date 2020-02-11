@@ -1,52 +1,13 @@
 import fetch from "node-fetch";
+import {
+  SlackMessage,
+  SlackMessageData,
+  SectionBlock,
+  ButtonElement
+} from "shared/types";
 
 export const DELETE_VALUE = "deleteMessage";
-interface SlackMessageData {
-  title: string;
-  display_name_prefixed: string;
-  icon_img: string;
-  public_description: string;
-}
-
-export type SlackMessage = {
-  response_type?: "ephemeral" | "in_channel";
-  text: string;
-  blocks?: SlackBlock[];
-};
-
-type SlackBlock = SectionBlock | ActionBlock | ImageBlock;
-
-type SectionBlock = {
-  type: "section";
-  text: TextConfig;
-  accessory?: ImageBlock;
-};
-
-type TextConfig = {
-  type: "mrkdwn" | "plain_text";
-  text: string;
-  emoji?: boolean;
-};
-
-type ActionBlock = {
-  type: "actions";
-  elements: ActionElement[];
-};
-
-type ImageBlock = {
-  type: "image";
-  image_url: string;
-  alt_text: string;
-};
-
-type ActionElement = ButtonElement;
-
-type ButtonElement = {
-  type: "button";
-  text: TextConfig;
-  value?: any;
-  style?: "primary" | "danger";
-};
+export const NEXT_VALUE = "nextOption";
 
 export const generateSlackErrorMessage = () => {
   const message: SlackMessage = {
@@ -115,6 +76,17 @@ export const generateSlackMessage = ({
     value: DELETE_VALUE
   };
 
+  const nextButton: ButtonElement = {
+    type: "button",
+    text: {
+      type: "plain_text",
+      text: "Next ➡️",
+      emoji: true
+    },
+    style: "primary",
+    value: NEXT_VALUE
+  };
+
   const message: SlackMessage = {
     response_type: "ephemeral",
     text: title,
@@ -122,7 +94,7 @@ export const generateSlackMessage = ({
       messageBlock,
       {
         type: "actions",
-        elements: [confirmButton, cancelButton]
+        elements: [confirmButton, cancelButton, nextButton]
       }
     ]
   };
@@ -133,6 +105,9 @@ export const generateSlackMessage = ({
 export const deleteMessage = (responseUrl: string) => {
   fetch(responseUrl, {
     method: "POST",
+    headers: {
+      "Content-type": "application/json; charset=utf-8"
+    },
     body: JSON.stringify({
       delete_original: true
     })
@@ -146,7 +121,7 @@ export const publishMessage = (
   fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
-      "Content-type": "application/json",
+      "Content-type": "application/json; charset=utf-8",
       Authorization: `Bearer ${process.env.OAUTH_ACCESS_TOKEN}`
     },
     body: JSON.stringify({

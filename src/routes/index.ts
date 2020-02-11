@@ -1,11 +1,7 @@
 import { Router } from "express";
-import {
-  DELETE_VALUE,
-  deleteMessage,
-  SlackMessage,
-  publishMessage
-} from "../shared/Slack";
+import { DELETE_VALUE, deleteMessage, publishMessage } from "../shared/Slack";
 import Client from "../shared/RedditClient";
+import { SlackMessage } from "shared/types";
 
 // Init router and path
 const router = Router();
@@ -19,7 +15,6 @@ router.post("/search", async (req, res, next) => {
 
 router.post("/response", (req, res, next) => {
   const payload = JSON.parse(req.body.payload);
-  console.log("payload: ", payload);
   if (payload.actions[0].value === DELETE_VALUE && payload.response_url) {
     deleteMessage(payload.response_url);
   } else {
