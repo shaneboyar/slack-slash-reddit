@@ -143,9 +143,7 @@ class Client {
         channel: channelId,
         ...messagePayload
       })
-    })
-      .then(resp => resp.json())
-      .then(data => console.log("data", data));
+    });
   };
 
   replaceWithNextOption = (responseUrl: string) => {
