@@ -25,6 +25,7 @@ router.post("/response", (req, res, next) => {
   const responseValue = payload.actions[0].value;
   if (responseValue === ResponseValue.DELETE && response_url) {
     SlackClients[uuid].deleteMessage(response_url);
+    delete SlackClients[uuid];
   } else if (responseValue === ResponseValue.NEXT && response_url) {
     SlackClients[uuid].replaceWithNextOption(response_url);
   } else {
@@ -37,6 +38,7 @@ router.post("/response", (req, res, next) => {
     SlackClients[uuid].publishMessage(channel.id, message);
     delete SlackClients[uuid];
   }
+  res.send({ status: "OK" });
 });
 
 // Export the base-router
