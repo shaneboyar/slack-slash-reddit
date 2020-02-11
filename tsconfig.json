@@ -5,7 +5,7 @@
     "paths": {
       "$types": ["shared/types"],
       "$clients": ["shared/clients"],
-      "$utils": ["shared/utilites"]
+      "$utils": ["shared/utilities"]
     },
     "forceConsistentCasingInFileNames": true,
     "lib": ["es6", "dom", "es2015.promise"],

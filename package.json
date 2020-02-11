@@ -12,7 +12,7 @@
   "_moduleAliases": {
     "$types": "src/shared/types",
     "$clients": "src/shared/clients",
-    "$utils": "src/shared/utilites"
+    "$utils": "src/shared/utilities"
   },
   "dependencies": {
     "base-64": "^0.1.0",

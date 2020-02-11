@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ResponseValue, SlackMessage } from "$types";
 import { Reddit, Slack } from "$clients";
-import { generateUUID } from "shared/utilities";
+import { generateUUID } from "$utils";
 
 // Init router and path
 const router = Router();
