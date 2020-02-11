@@ -1,6 +1,6 @@
 {
   "name": "slack-slash-reddit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "build/dist/index.js",
   "scripts": {
     "build": "rimraf ./build && tsc --build tsconfig.prod.json",
