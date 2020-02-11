@@ -1,13 +1,17 @@
 import base64 from "base-64";
 import FormData from "form-data";
 import fetch from "node-fetch";
-import { generateSlackMessage, generateSlackErrorMessage } from "../Slack";
-import { RedditSearchResponse, RedditClient } from "shared/types";
+import { RedditSearchResponse } from "$types";
 
-const USER_AGENT = "Slack Slash Reddit";
+class Client {
+  private accessToken?: string;
+  private USER_AGENT: string = "Slack Slash Reddit";
 
-class Client extends RedditClient {
-  public build = async () => {
+  constructor() {
+    this.build();
+  }
+
+  private build = async () => {
     try {
       if (!process.env.REDDIT_SECRET || !process.env.REDDIT_APP_ID) {
         throw new Error(
@@ -24,20 +28,19 @@ class Client extends RedditClient {
         method: "POST",
         headers: {
           Authorization: `Basic ${auth}`,
-          "User-Agent": USER_AGENT
+          "User-Agent": this.USER_AGENT
         },
         body: body
       });
-
       const { access_token } = await res.json();
       this.accessToken = access_token;
     } catch (_err) {
-      console.error("error: ", _err);
+      console.error(_err);
       throw new Error("Reddit Client could not be initialized");
     }
   };
 
-  search = async (term: string) => {
+  public search = async (term: string) => {
     try {
       let res = await fetch(
         `http://oauth.reddit.com/subreddits/search?q=${term}`,
@@ -45,27 +48,14 @@ class Client extends RedditClient {
           headers: {
             "Content-type": "application/json; charset=utf-8",
             Authorization: `Bearer ${this.accessToken}`,
-            "User-Agent": USER_AGENT
+            "User-Agent": this.USER_AGENT
           }
         }
       );
       let data: RedditSearchResponse = await res.json();
-      const { children } = data.data;
-      console.log("children: ", JSON.stringify(children[0], null, 2));
-      const {
-        title,
-        display_name_prefixed,
-        icon_img,
-        public_description
-      } = children[0].data;
-      return generateSlackMessage({
-        title,
-        display_name_prefixed,
-        icon_img,
-        public_description
-      });
+      return data.data.children;
     } catch (error) {
-      return generateSlackErrorMessage();
+      throw error;
     }
   };
 }

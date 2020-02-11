@@ -1,2 +1,2 @@
-export * from "./RedditClient";
+export * from "./Reddit";
 export * from "./Slack";

@@ -1,5 +1,3 @@
-import { SlackMessage } from "./Slack";
-
 export type RedditSearchData = {
   modhash: string;
   dist: number;
@@ -109,11 +107,3 @@ export type RedditSearchResult = {
   kind: string;
   data: SubredditData;
 };
-
-export declare class RedditClient {
-  protected accessToken?: string;
-  protected searchResults?: RedditSearchResult[];
-
-  public build(): void;
-  public search(term: string): Promise<SlackMessage>;
-}

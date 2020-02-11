@@ -1,30 +1,41 @@
 import { Router } from "express";
-import { DELETE_VALUE, deleteMessage, publishMessage } from "../shared/Slack";
-import Client from "../shared/RedditClient";
-import { SlackMessage } from "shared/types";
+import { ResponseValue, SlackMessage } from "$types";
+import { Reddit, Slack } from "$clients";
+import { generateUUID } from "shared/utilities";
 
 // Init router and path
 const router = Router();
-const R = new Client();
-R.build();
+const RedditClient = new Reddit();
+
+const SlackClients: { [uuid: number]: Slack } | {} = {};
 
 router.post("/search", async (req, res, next) => {
-  const message = await R.search(req.body.text);
+  const results = await RedditClient.search(req.body.text);
+  const uuid = generateUUID(req);
+  SlackClients[uuid] = new Slack();
+  SlackClients[uuid].searchResults = results;
+  const message = SlackClients[uuid].generateMessage();
   res.json(message);
 });
 
 router.post("/response", (req, res, next) => {
   const payload = JSON.parse(req.body.payload);
-  if (payload.actions[0].value === DELETE_VALUE && payload.response_url) {
-    deleteMessage(payload.response_url);
+  const { response_url, channel } = payload;
+  const uuid = generateUUID(payload);
+  const responseValue = payload.actions[0].value;
+  if (responseValue === ResponseValue.DELETE && response_url) {
+    SlackClients[uuid].deleteMessage(response_url);
+  } else if (responseValue === ResponseValue.NEXT && response_url) {
+    SlackClients[uuid].replaceWithNextOption(response_url);
   } else {
-    const messageBlock = JSON.parse(payload.actions[0].value);
+    const messageBlock = JSON.parse(responseValue);
     const message: SlackMessage = {
       text: "Test",
       blocks: [messageBlock]
     };
-    deleteMessage(payload.response_url);
-    publishMessage(payload.channel.id, message);
+    SlackClients[uuid].deleteMessage(response_url);
+    SlackClients[uuid].publishMessage(channel.id, message);
+    delete SlackClients[uuid];
   }
 });
 
